@@ -1,0 +1,55 @@
+#menu .current a {
+    color: #f56a6a !important;
+    font-weight: bold !important;
+    background-color: rgba(245, 106, 106, 0.1);
+    border-left: 4px solid #f56a6a;
+    padding-left: 1em !important;
+}
+
+/* Current menu item styles */
+#menu ul a.current, #menu ul span.current {
+  color: #f56a6a;
+  font-weight: 700;
+  background-color: rgba(245, 106, 106, 0.1);
+  border-left: 4px solid #f56a6a;
+  padding-left: 1em;
+}
+
+/* Search page styles */
+.search-page {
+  font-family: Arial, sans-serif;
+  margin: 0px;
+}
+
+.search-page .result {
+  margin-bottom: 0px;
+}
+
+.search-page .no-results {
+  color: #666;
+  font-style: italic;
+}
+
+.search-page .loading {
+  color: #666;
+}
+
+.search-page .error {
+  color: #ff0000;
+}
+
+/* Recommendation page styles */
+.recommendation-page {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.recommendation-page input {
+  padding: 8px;
+  width: 300px;
+  margin-bottom: 10px;
+}
+
+.recommendation-page li {
+  margin: 8px 0;
+} 

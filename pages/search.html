@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Results</title>
+  <link rel="stylesheet" href="../assets/css/main.css" />
+  <link rel="stylesheet" href="../assets/css/custom.css" />
+</head>
+<body class="search-page">
+  <div id="wrapper">
+    <div id="main">
+      <div class="inner">
+        <header id="header">
+          <a href="../index.html" class="logo"><strong>Search Results</strong></a>
+        </header>
+
+        <section>
+          <div id="results" class="loading">Searching...</div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div class="inner">
+        <!-- Search -->
+        <section id="search" class="alt">
+          <form method="get" action="search.html">
+            <input type="text" name="query" id="query" placeholder="Search" />
+          </form>
+        </section>
+
+        <!-- Menu -->
+        <nav id="menu">
+          <header class="major">
+            <h2>Menu</h2>
+          </header>
+          <ul>
+            <li><a href="../index.html">Homepage</a></li>
+            <li><a href="Introduction.html">Introduction</a></li>
+            <li><a href="Literature Review.html">Literature Review</a></li>
+            <li><a href="Research Methodology.html">Research Methodology</a></li>
+            <li><a href="Results And Discussions.html">Results And Discussions</a></li>
+            <li><a href="Conclusion and Recommendation.html">Conclusion and Recommendation</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get('query')?.toLowerCase() || '';
+    const resultsContainer = document.getElementById('results');
+
+    if (!query) {
+      resultsContainer.innerHTML = '<div class="no-results">Please enter a search term</div>';
+      return;
+    }
+
+    const pages = [
+      { title: "Homepage", url: "../index.html" },
+      { title: "Introduction", url: "Introduction.html" },
+      { title: "Literature Review", url: "Literature Review.html" },
+      { title: "Research Methodology", url: "Research Methodology.html" },
+      { title: "Results and Discussions", url: "Results And Discussions.html" },
+      { title: "Conclusion and Recommendation", url: "Conclusion and Recommendation.html" }
+    ];
+
+    let foundResults = false;
+    let completedRequests = 0;
+
+    async function searchPage(page) {
+      try {
+        const response = await fetch(page.url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const html = await response.text();
+        if (html.toLowerCase().includes(query)) {
+          foundResults = true;
+          const result = document.createElement('div');
+          result.classList.add('result');
+          result.innerHTML = `<a href="${page.url}">${page.title}</a>`;
+          resultsContainer.appendChild(result);
+        }
+      } catch (error) {
+        console.error(`Error fetching ${page.url}:`, error);
+        const errorDiv = document.createElement('div');
+        errorDiv.classList.add('error');
+        errorDiv.textContent = `Error searching ${page.title}: ${error.message}`;
+        resultsContainer.appendChild(errorDiv);
+      } finally {
+        completedRequests++;
+        if (completedRequests === pages.length) {
+          if (!foundResults) {
+            resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+          }
+        }
+      }
+    }
+
+    // Search all pages
+    pages.forEach(searchPage);
+  </script>
+
+  <!-- Scripts -->
+  <script src="../assets/js/jquery.min.js"></script>
+  <script src="../assets/js/browser.min.js"></script>
+  <script src="../assets/js/breakpoints.min.js"></script>
+  <script src="../assets/js/util.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
