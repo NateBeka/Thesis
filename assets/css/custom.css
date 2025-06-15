@@ -15,6 +15,27 @@
   padding-left: 1em;
 }
 
+/* AAU Logo styles */
+.image.object img[src*="AAU logo"] {
+  object-fit: contain !important;
+  max-height: 300px;
+  width: auto;
+}
+
+/* Page header image styles */
+.image.main img {
+  aspect-ratio: 18/5;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* Contents section image styles */
+.posts .image img {
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  width: 100%;
+}
+
 /* Search page styles */
 .search-page {
   font-family: Arial, sans-serif;
