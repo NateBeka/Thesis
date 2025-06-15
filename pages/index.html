@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>THESIS PROJECT</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1.js"></script>
+        <script src="data/thesis_project_data_collection_all_versions_labels_2025_05_14_06_2.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString' || e.target.feature.geometry.type === 'MultiLineString') {
+              highlightLayer.setStyle({
+                color: '#1f78b4',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#1f78b4',
+                fillOpacity: 1
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[8.972901728270108,38.71764651000285],[9.052305337767695,38.878850485039415]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topright'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>THESIS PROJECT</h2>';
+        };
+        title.addTo(map);
+        var abstract = new L.Control({'position':'topleft'});
+        abstract.onAdd = function (map) {
+            this._div = L.DomUtil.create('div',
+            'leaflet-control abstract');
+            this._div.id = 'abstract'
+
+                abstract.show();
+                return this._div;
+            };
+            abstract.show = function () {
+                this._div.classList.remove("abstract");
+                this._div.classList.add("abstractUncollapsed");
+                this._div.innerHTML = 'AALRT';
+        };
+        abstract.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OpenStreetMap_0');
+        map.getPane('pane_OpenStreetMap_0').style.zIndex = 400;
+        var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OpenStreetMap_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OpenStreetMap_0;
+        map.addLayer(layer_OpenStreetMap_0);
+        function pop_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">start</th>\
+                        <td class="visible-with-data" id="start">' + (feature.properties['start'] !== null ? autolinker.link(String(feature.properties['start']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">end</th>\
+                        <td class="visible-with-data" id="end">' + (feature.properties['end'] !== null ? autolinker.link(String(feature.properties['end']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Record your current location</th>\
+                        <td class="visible-with-data" id="Record your current location">' + (feature.properties['Record your current location'] !== null ? autolinker.link(String(feature.properties['Record your current location']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Record your current location_latitude</th>\
+                        <td class="visible-with-data" id="_Record your current location_latitude">' + (feature.properties['_Record your current location_latitude'] !== null ? autolinker.link(String(feature.properties['_Record your current location_latitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Record your current location_longitude</th>\
+                        <td class="visible-with-data" id="_Record your current location_longitude">' + (feature.properties['_Record your current location_longitude'] !== null ? autolinker.link(String(feature.properties['_Record your current location_longitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Record your current location_altitude</th>\
+                        <td class="visible-with-data" id="_Record your current location_altitude">' + (feature.properties['_Record your current location_altitude'] !== null ? autolinker.link(String(feature.properties['_Record your current location_altitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Record your current location_precision</th>\
+                        <td class="visible-with-data" id="_Record your current location_precision">' + (feature.properties['_Record your current location_precision'] !== null ? autolinker.link(String(feature.properties['_Record your current location_precision']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">1. Name of the data collector:</th>\
+                        <td class="visible-with-data" id="1. Name of the data collector:">' + (feature.properties['1. Name of the data collector:'] !== null ? autolinker.link(String(feature.properties['1. Name of the data collector:']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2. Data collection period:</th>\
+                        <td class="visible-with-data" id="2. Data collection period:">' + (feature.properties['2. Data collection period:'] !== null ? autolinker.link(String(feature.properties['2. Data collection period:']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">3. Station Name</th>\
+                        <td class="visible-with-data" id="3. Station Name">' + (feature.properties['3. Station Name'] !== null ? autolinker.link(String(feature.properties['3. Station Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">1. Sex of the respondent:</th>\
+                        <td class="visible-with-data" id="1. Sex of the respondent:">' + (feature.properties['1. Sex of the respondent:'] !== null ? autolinker.link(String(feature.properties['1. Sex of the respondent:']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2. Which category below includes the respondent age?</th>\
+                        <td class="visible-with-data" id="2. Which category below includes the respondent age?">' + (feature.properties['2. Which category below includes the respondent age?'] !== null ? autolinker.link(String(feature.properties['2. Which category below includes the respondent age?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">3. Which modes of public transport do you often use per day?</th>\
+                        <td class="visible-with-data" id="3. Which modes of public transport do you often use per day?">' + (feature.properties['3. Which modes of public transport do you often use per day?'] !== null ? autolinker.link(String(feature.properties['3. Which modes of public transport do you often use per day?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Others (please specify):</th>\
+                        <td class="visible-with-data" id="Others (please specify):">' + (feature.properties['Others (please specify):'] !== null ? autolinker.link(String(feature.properties['Others (please specify):']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">4. What are the main reasons you use public transport?</th>\
+                        <td class="visible-with-data" id="4. What are the main reasons you use public transport?">' + (feature.properties['4. What are the main reasons you use public transport?'] !== null ? autolinker.link(String(feature.properties['4. What are the main reasons you use public transport?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Other (please specify):</th>\
+                        <td class="visible-with-data" id="Other (please specify):">' + (feature.properties['Other (please specify):'] !== null ? autolinker.link(String(feature.properties['Other (please specify):']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS?</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS?">' + (feature.properties['5. Why do you choose this mode over LRT/BUS?'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /It is cheaper</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /It is cheaper">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /It is cheaper'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /It is cheaper']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Less crowded</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Less crowded">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Less crowded'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Less crowded']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Most frequently available mode</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Most frequently available mode">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Most frequently available mode'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Most frequently available mode']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Fastest mode</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Fastest mode">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Fastest mode'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Fastest mode']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Easily connects to my next mode</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Easily connects to my next mode">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Easily connects to my next mode'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Easily connects to my next mode']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /It is safer</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /It is safer">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /It is safer'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /It is safer']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Others (please specify):</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Others (please specify):">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Others (please specify):'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Others (please specify):']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Other (please specify)</th>\
+                        <td class="visible-with-data" id="Other (please specify)">' + (feature.properties['Other (please specify)'] !== null ? autolinker.link(String(feature.properties['Other (please specify)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. How do you access this public transport station/stop?</th>\
+                        <td class="visible-with-data" id="6. How do you access this public transport station/stop?">' + (feature.properties['6. How do you access this public transport station/stop?'] !== null ? autolinker.link(String(feature.properties['6. How do you access this public transport station/stop?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. How do you access this public transport station/stop?/Walk</th>\
+                        <td class="visible-with-data" id="6. How do you access this public transport station/stop?/Walk">' + (feature.properties['6. How do you access this public transport station/stop?/Walk'] !== null ? autolinker.link(String(feature.properties['6. How do you access this public transport station/stop?/Walk']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. How do you access this public transport station/stop?/Taxi</th>\
+                        <td class="visible-with-data" id="6. How do you access this public transport station/stop?/Taxi">' + (feature.properties['6. How do you access this public transport station/stop?/Taxi'] !== null ? autolinker.link(String(feature.properties['6. How do you access this public transport station/stop?/Taxi']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. How do you access this public transport station/stop?/Other (please specify):</th>\
+                        <td class="visible-with-data" id="6. How do you access this public transport station/stop?/Other (please specify):">' + (feature.properties['6. How do you access this public transport station/stop?/Other (please specify):'] !== null ? autolinker.link(String(feature.properties['6. How do you access this public transport station/stop?/Other (please specify):']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">7. Where is your home location and most usable station?</th>\
+                        <td class="visible-with-data" id="7. Where is your home location and most usable station?">' + (feature.properties['7. Where is your home location and most usable station?'] !== null ? autolinker.link(String(feature.properties['7. Where is your home location and most usable station?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">8. Where is your current destination and the path you will use?</th>\
+                        <td class="visible-with-data" id="8. Where is your current destination and the path you will use?">' + (feature.properties['8. Where is your current destination and the path you will use?'] !== null ? autolinker.link(String(feature.properties['8. Where is your current destination and the path you will use?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">9. How much time did it take to get to this station/stop?</th>\
+                        <td class="visible-with-data" id="9. How much time did it take to get to this station/stop?">' + (feature.properties['9. How much time did it take to get to this station/stop?'] !== null ? autolinker.link(String(feature.properties['9. How much time did it take to get to this station/stop?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">10. How long do you wait for LRT/Bus usually?</th>\
+                        <td class="visible-with-data" id="10. How long do you wait for LRT/Bus usually?">' + (feature.properties['10. How long do you wait for LRT/Bus usually?'] !== null ? autolinker.link(String(feature.properties['10. How long do you wait for LRT/Bus usually?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">11. How much time does this journey usually take to get to your destination?</th>\
+                        <td class="visible-with-data" id="11. How much time does this journey usually take to get to your destination?">' + (feature.properties['11. How much time does this journey usually take to get to your destination?'] !== null ? autolinker.link(String(feature.properties['11. How much time does this journey usually take to get to your destination?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">12. How often do you use LRT/BUS?</th>\
+                        <td class="visible-with-data" id="12. How often do you use LRT/BUS?">' + (feature.properties['12. How often do you use LRT/BUS?'] !== null ? autolinker.link(String(feature.properties['12. How often do you use LRT/BUS?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">13. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)</th>\
+                        <td class="visible-with-data" id="13. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)">' + (feature.properties['13. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)'] !== null ? autolinker.link(String(feature.properties['13. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">1st choice</th>\
+                        <td class="visible-with-data" id="1st choice">' + (feature.properties['1st choice'] !== null ? autolinker.link(String(feature.properties['1st choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2nd choice</th>\
+                        <td class="visible-with-data" id="2nd choice">' + (feature.properties['2nd choice'] !== null ? autolinker.link(String(feature.properties['2nd choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">3rd choice</th>\
+                        <td class="visible-with-data" id="3rd choice">' + (feature.properties['3rd choice'] !== null ? autolinker.link(String(feature.properties['3rd choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">4th choice</th>\
+                        <td class="visible-with-data" id="4th choice">' + (feature.properties['4th choice'] !== null ? autolinker.link(String(feature.properties['4th choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5th choice</th>\
+                        <td class="visible-with-data" id="5th choice">' + (feature.properties['5th choice'] !== null ? autolinker.link(String(feature.properties['5th choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">14.Do you know about BRT? (Explain for the respondent in both answers)</th>\
+                        <td class="visible-with-data" id="14.Do you know about BRT? (Explain for the respondent in both answers)">' + (feature.properties['14.Do you know about BRT? (Explain for the respondent in both answers)'] !== null ? autolinker.link(String(feature.properties['14.Do you know about BRT? (Explain for the respondent in both answers)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">15. Will you prefer BRT other than other modes of transport(LRT / Bus)?</th>\
+                        <td class="visible-with-data" id="15. Will you prefer BRT other than other modes of transport(LRT / Bus)?">' + (feature.properties['15. Will you prefer BRT other than other modes of transport(LRT / Bus)?'] !== null ? autolinker.link(String(feature.properties['15. Will you prefer BRT other than other modes of transport(LRT / Bus)?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">16. What would be the basic reason for choosing it (BRT)?</th>\
+                        <td class="visible-with-data" id="16. What would be the basic reason for choosing it (BRT)?">' + (feature.properties['16. What would be the basic reason for choosing it (BRT)?'] !== null ? autolinker.link(String(feature.properties['16. What would be the basic reason for choosing it (BRT)?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17. How much is the cost for travel of current transport?</th>\
+                        <td class="visible-with-data" id="17. How much is the cost for travel of current transport?">' + (feature.properties['17. How much is the cost for travel of current transport?'] !== null ? autolinker.link(String(feature.properties['17. How much is the cost for travel of current transport?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?">' + (feature.properties['18. How much money do you spend on this public transport daily?'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?/>100 ETB per day</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?/>100 ETB per day">' + (feature.properties['18. How much money do you spend on this public transport daily?/>100 ETB per day'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?/>100 ETB per day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?/50 – 100 ETB per day</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?/50 – 100 ETB per day">' + (feature.properties['18. How much money do you spend on this public transport daily?/50 – 100 ETB per day'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?/50 – 100 ETB per day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?/Up to 50 ETB per day</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?/Up to 50 ETB per day">' + (feature.properties['18. How much money do you spend on this public transport daily?/Up to 50 ETB per day'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?/Up to 50 ETB per day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?/Other (Please specify)</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?/Other (Please specify)">' + (feature.properties['18. How much money do you spend on this public transport daily?/Other (Please specify)'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?/Other (Please specify)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Other (Please specify)_1</th>\
+                        <td class="visible-with-data" id="Other (Please specify)_1">' + (feature.properties['Other (Please specify)_1'] !== null ? autolinker.link(String(feature.properties['Other (Please specify)_1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?">' + (feature.properties['19.Rate the cost for the travel?'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Cheap</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Cheap">' + (feature.properties['19.Rate the cost for the travel?/Cheap'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Cheap']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Very affordable</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Very affordable">' + (feature.properties['19.Rate the cost for the travel?/Very affordable'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Very affordable']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Affordable</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Affordable">' + (feature.properties['19.Rate the cost for the travel?/Affordable'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Affordable']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Expensive</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Expensive">' + (feature.properties['19.Rate the cost for the travel?/Expensive'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Expensive']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Very expensive</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Very expensive">' + (feature.properties['19.Rate the cost for the travel?/Very expensive'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Very expensive']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">20. What amount would you consider reasonable or acceptable for the cost of this trip?</th>\
+                        <td class="visible-with-data" id="20. What amount would you consider reasonable or acceptable for the cost of this trip?">' + (feature.properties['20. What amount would you consider reasonable or acceptable for the cost of this trip?'] !== null ? autolinker.link(String(feature.properties['20. What amount would you consider reasonable or acceptable for the cost of this trip?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">21.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)</th>\
+                        <td class="visible-with-data" id="21.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)">' + (feature.properties['21.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)'] !== null ? autolinker.link(String(feature.properties['21.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">22. What do you appreciate most about the current LRT/Bus system?</th>\
+                        <td class="visible-with-data" id="22. What do you appreciate most about the current LRT/Bus system?">' + (feature.properties['22. What do you appreciate most about the current LRT/Bus system?'] !== null ? autolinker.link(String(feature.properties['22. What do you appreciate most about the current LRT/Bus system?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Where is your home location and most usable station?</th>\
+                        <td class="visible-with-data" id="5. Where is your home location and most usable station?">' + (feature.properties['5. Where is your home location and most usable station?'] !== null ? autolinker.link(String(feature.properties['5. Where is your home location and most usable station?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. Where is your current destination and the path you will use?</th>\
+                        <td class="visible-with-data" id="6. Where is your current destination and the path you will use?">' + (feature.properties['6. Where is your current destination and the path you will use?'] !== null ? autolinker.link(String(feature.properties['6. Where is your current destination and the path you will use?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">7. How much time did it take to get to this station/stop?</th>\
+                        <td class="visible-with-data" id="7. How much time did it take to get to this station/stop?">' + (feature.properties['7. How much time did it take to get to this station/stop?'] !== null ? autolinker.link(String(feature.properties['7. How much time did it take to get to this station/stop?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">8. How long do you wait for LRT/Bus usually?</th>\
+                        <td class="visible-with-data" id="8. How long do you wait for LRT/Bus usually?">' + (feature.properties['8. How long do you wait for LRT/Bus usually?'] !== null ? autolinker.link(String(feature.properties['8. How long do you wait for LRT/Bus usually?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">9. How much time does this journey usually take to get to your destination?</th>\
+                        <td class="visible-with-data" id="9. How much time does this journey usually take to get to your destination?">' + (feature.properties['9. How much time does this journey usually take to get to your destination?'] !== null ? autolinker.link(String(feature.properties['9. How much time does this journey usually take to get to your destination?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">10. How often do you use LRT/BUS?</th>\
+                        <td class="visible-with-data" id="10. How often do you use LRT/BUS?">' + (feature.properties['10. How often do you use LRT/BUS?'] !== null ? autolinker.link(String(feature.properties['10. How often do you use LRT/BUS?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">11. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)</th>\
+                        <td class="visible-with-data" id="11. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)">' + (feature.properties['11. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)'] !== null ? autolinker.link(String(feature.properties['11. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">12.Do you know about BRT? (Explain for the respondent in both answers)</th>\
+                        <td class="visible-with-data" id="12.Do you know about BRT? (Explain for the respondent in both answers)">' + (feature.properties['12.Do you know about BRT? (Explain for the respondent in both answers)'] !== null ? autolinker.link(String(feature.properties['12.Do you know about BRT? (Explain for the respondent in both answers)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">14. What would be the basic reason for choosing it (BRT)?</th>\
+                        <td class="visible-with-data" id="14. What would be the basic reason for choosing it (BRT)?">' + (feature.properties['14. What would be the basic reason for choosing it (BRT)?'] !== null ? autolinker.link(String(feature.properties['14. What would be the basic reason for choosing it (BRT)?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">15. How much is the cost for travel of current transport?</th>\
+                        <td class="visible-with-data" id="15. How much is the cost for travel of current transport?">' + (feature.properties['15. How much is the cost for travel of current transport?'] !== null ? autolinker.link(String(feature.properties['15. How much is the cost for travel of current transport?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?">' + (feature.properties['17.Rate the cost for the travel?'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Cheap</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Cheap">' + (feature.properties['17.Rate the cost for the travel?/Cheap'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Cheap']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Very affordable</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Very affordable">' + (feature.properties['17.Rate the cost for the travel?/Very affordable'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Very affordable']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Affordable</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Affordable">' + (feature.properties['17.Rate the cost for the travel?/Affordable'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Affordable']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Expensive</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Expensive">' + (feature.properties['17.Rate the cost for the travel?/Expensive'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Expensive']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Very expensive</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Very expensive">' + (feature.properties['17.Rate the cost for the travel?/Very expensive'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Very expensive']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. What amount would you consider reasonable or acceptable for the cost of this trip?</th>\
+                        <td class="visible-with-data" id="18. What amount would you consider reasonable or acceptable for the cost of this trip?">' + (feature.properties['18. What amount would you consider reasonable or acceptable for the cost of this trip?'] !== null ? autolinker.link(String(feature.properties['18. What amount would you consider reasonable or acceptable for the cost of this trip?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)</th>\
+                        <td class="visible-with-data" id="19.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)">' + (feature.properties['19.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)'] !== null ? autolinker.link(String(feature.properties['19.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">20. What do you appreciate most about the current LRT/Bus system?</th>\
+                        <td class="visible-with-data" id="20. What do you appreciate most about the current LRT/Bus system?">' + (feature.properties['20. What do you appreciate most about the current LRT/Bus system?'] !== null ? autolinker.link(String(feature.properties['20. What do you appreciate most about the current LRT/Bus system?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_id</th>\
+                        <td class="visible-with-data" id="_id">' + (feature.properties['_id'] !== null ? autolinker.link(String(feature.properties['_id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_uuid</th>\
+                        <td class="visible-with-data" id="_uuid">' + (feature.properties['_uuid'] !== null ? autolinker.link(String(feature.properties['_uuid']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_submission_time</th>\
+                        <td class="visible-with-data" id="_submission_time">' + (feature.properties['_submission_time'] !== null ? autolinker.link(String(feature.properties['_submission_time']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_validation_status</th>\
+                        <td class="visible-with-data" id="_validation_status">' + (feature.properties['_validation_status'] !== null ? autolinker.link(String(feature.properties['_validation_status']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_notes</th>\
+                        <td class="visible-with-data" id="_notes">' + (feature.properties['_notes'] !== null ? autolinker.link(String(feature.properties['_notes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_status</th>\
+                        <td class="visible-with-data" id="_status">' + (feature.properties['_status'] !== null ? autolinker.link(String(feature.properties['_status']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_submitted_by</th>\
+                        <td class="visible-with-data" id="_submitted_by">' + (feature.properties['_submitted_by'] !== null ? autolinker.link(String(feature.properties['_submitted_by']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">__version__</th>\
+                        <td class="visible-with-data" id="__version__">' + (feature.properties['__version__'] !== null ? autolinker.link(String(feature.properties['__version__']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_tags</th>\
+                        <td class="visible-with-data" id="_tags">' + (feature.properties['_tags'] !== null ? autolinker.link(String(feature.properties['_tags']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_index</th>\
+                        <td class="visible-with-data" id="_index">' + (feature.properties['_index'] !== null ? autolinker.link(String(feature.properties['_index']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1_0(feature) {
+            switch(String(feature.properties['11. How much time does this journey usually take to get to your destination?'])) {
+                case '< 30 minutes ':
+                    return {
+                pane: 'pane_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1',
+                radius: 4.799999999999999,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,237,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '30 – 60 minutes ':
+                    return {
+                pane: 'pane_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1',
+                radius: 5.200000000000001,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(252,249,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'more than 60 minutes':
+                    return {
+                pane: 'pane_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(227,26,28,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1');
+        map.getPane('pane_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1').style.zIndex = 401;
+        map.getPane('pane_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1').style['mix-blend-mode'] = 'normal';
+        var layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1 = new L.geoJson(json_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1',
+            layerName: 'layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1',
+            pane: 'pane_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1',
+            onEachFeature: pop_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1);
+        map.addLayer(layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1);
+        function pop_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">fid</th>\
+                        <td class="visible-with-data" id="fid">' + (feature.properties['fid'] !== null ? autolinker.link(String(feature.properties['fid']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">start</th>\
+                        <td class="visible-with-data" id="start">' + (feature.properties['start'] !== null ? autolinker.link(String(feature.properties['start']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">end</th>\
+                        <td class="visible-with-data" id="end">' + (feature.properties['end'] !== null ? autolinker.link(String(feature.properties['end']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Record your current location</th>\
+                        <td class="visible-with-data" id="Record your current location">' + (feature.properties['Record your current location'] !== null ? autolinker.link(String(feature.properties['Record your current location']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Record your current location_latitude</th>\
+                        <td class="visible-with-data" id="_Record your current location_latitude">' + (feature.properties['_Record your current location_latitude'] !== null ? autolinker.link(String(feature.properties['_Record your current location_latitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Record your current location_longitude</th>\
+                        <td class="visible-with-data" id="_Record your current location_longitude">' + (feature.properties['_Record your current location_longitude'] !== null ? autolinker.link(String(feature.properties['_Record your current location_longitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Record your current location_altitude</th>\
+                        <td class="visible-with-data" id="_Record your current location_altitude">' + (feature.properties['_Record your current location_altitude'] !== null ? autolinker.link(String(feature.properties['_Record your current location_altitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_Record your current location_precision</th>\
+                        <td class="visible-with-data" id="_Record your current location_precision">' + (feature.properties['_Record your current location_precision'] !== null ? autolinker.link(String(feature.properties['_Record your current location_precision']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">1. Name of the data collector:</th>\
+                        <td class="visible-with-data" id="1. Name of the data collector:">' + (feature.properties['1. Name of the data collector:'] !== null ? autolinker.link(String(feature.properties['1. Name of the data collector:']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2. Data collection period:</th>\
+                        <td class="visible-with-data" id="2. Data collection period:">' + (feature.properties['2. Data collection period:'] !== null ? autolinker.link(String(feature.properties['2. Data collection period:']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">3. Station Name</th>\
+                        <td class="visible-with-data" id="3. Station Name">' + (feature.properties['3. Station Name'] !== null ? autolinker.link(String(feature.properties['3. Station Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">1. Sex of the respondent:</th>\
+                        <td class="visible-with-data" id="1. Sex of the respondent:">' + (feature.properties['1. Sex of the respondent:'] !== null ? autolinker.link(String(feature.properties['1. Sex of the respondent:']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2. Which category below includes the respondent age?</th>\
+                        <td class="visible-with-data" id="2. Which category below includes the respondent age?">' + (feature.properties['2. Which category below includes the respondent age?'] !== null ? autolinker.link(String(feature.properties['2. Which category below includes the respondent age?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">3. Which modes of public transport do you often use per day?</th>\
+                        <td class="visible-with-data" id="3. Which modes of public transport do you often use per day?">' + (feature.properties['3. Which modes of public transport do you often use per day?'] !== null ? autolinker.link(String(feature.properties['3. Which modes of public transport do you often use per day?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Others (please specify):</th>\
+                        <td class="visible-with-data" id="Others (please specify):">' + (feature.properties['Others (please specify):'] !== null ? autolinker.link(String(feature.properties['Others (please specify):']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">4. What are the main reasons you use public transport?</th>\
+                        <td class="visible-with-data" id="4. What are the main reasons you use public transport?">' + (feature.properties['4. What are the main reasons you use public transport?'] !== null ? autolinker.link(String(feature.properties['4. What are the main reasons you use public transport?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Other (please specify):</th>\
+                        <td class="visible-with-data" id="Other (please specify):">' + (feature.properties['Other (please specify):'] !== null ? autolinker.link(String(feature.properties['Other (please specify):']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS?</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS?">' + (feature.properties['5. Why do you choose this mode over LRT/BUS?'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /It is cheaper</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /It is cheaper">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /It is cheaper'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /It is cheaper']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Less crowded</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Less crowded">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Less crowded'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Less crowded']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Most frequently available mode</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Most frequently available mode">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Most frequently available mode'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Most frequently available mode']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Fastest mode</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Fastest mode">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Fastest mode'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Fastest mode']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Easily connects to my next mode</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Easily connects to my next mode">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Easily connects to my next mode'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Easily connects to my next mode']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /It is safer</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /It is safer">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /It is safer'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /It is safer']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Why do you choose this mode over LRT/BUS? /Others (please specify):</th>\
+                        <td class="visible-with-data" id="5. Why do you choose this mode over LRT/BUS? /Others (please specify):">' + (feature.properties['5. Why do you choose this mode over LRT/BUS? /Others (please specify):'] !== null ? autolinker.link(String(feature.properties['5. Why do you choose this mode over LRT/BUS? /Others (please specify):']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Other (please specify)</th>\
+                        <td class="visible-with-data" id="Other (please specify)">' + (feature.properties['Other (please specify)'] !== null ? autolinker.link(String(feature.properties['Other (please specify)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. How do you access this public transport station/stop?</th>\
+                        <td class="visible-with-data" id="6. How do you access this public transport station/stop?">' + (feature.properties['6. How do you access this public transport station/stop?'] !== null ? autolinker.link(String(feature.properties['6. How do you access this public transport station/stop?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. How do you access this public transport station/stop?/Walk</th>\
+                        <td class="visible-with-data" id="6. How do you access this public transport station/stop?/Walk">' + (feature.properties['6. How do you access this public transport station/stop?/Walk'] !== null ? autolinker.link(String(feature.properties['6. How do you access this public transport station/stop?/Walk']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. How do you access this public transport station/stop?/Taxi</th>\
+                        <td class="visible-with-data" id="6. How do you access this public transport station/stop?/Taxi">' + (feature.properties['6. How do you access this public transport station/stop?/Taxi'] !== null ? autolinker.link(String(feature.properties['6. How do you access this public transport station/stop?/Taxi']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. How do you access this public transport station/stop?/Other (please specify):</th>\
+                        <td class="visible-with-data" id="6. How do you access this public transport station/stop?/Other (please specify):">' + (feature.properties['6. How do you access this public transport station/stop?/Other (please specify):'] !== null ? autolinker.link(String(feature.properties['6. How do you access this public transport station/stop?/Other (please specify):']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">7. Where is your home location and most usable station?</th>\
+                        <td class="visible-with-data" id="7. Where is your home location and most usable station?">' + (feature.properties['7. Where is your home location and most usable station?'] !== null ? autolinker.link(String(feature.properties['7. Where is your home location and most usable station?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">8. Where is your current destination and the path you will use?</th>\
+                        <td class="visible-with-data" id="8. Where is your current destination and the path you will use?">' + (feature.properties['8. Where is your current destination and the path you will use?'] !== null ? autolinker.link(String(feature.properties['8. Where is your current destination and the path you will use?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">9. How much time did it take to get to this station/stop?</th>\
+                        <td class="visible-with-data" id="9. How much time did it take to get to this station/stop?">' + (feature.properties['9. How much time did it take to get to this station/stop?'] !== null ? autolinker.link(String(feature.properties['9. How much time did it take to get to this station/stop?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">10. How long do you wait for LRT/Bus usually?</th>\
+                        <td class="visible-with-data" id="10. How long do you wait for LRT/Bus usually?">' + (feature.properties['10. How long do you wait for LRT/Bus usually?'] !== null ? autolinker.link(String(feature.properties['10. How long do you wait for LRT/Bus usually?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">11. How much time does this journey usually take to get to your destination?</th>\
+                        <td class="visible-with-data" id="11. How much time does this journey usually take to get to your destination?">' + (feature.properties['11. How much time does this journey usually take to get to your destination?'] !== null ? autolinker.link(String(feature.properties['11. How much time does this journey usually take to get to your destination?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">12. How often do you use LRT/BUS?</th>\
+                        <td class="visible-with-data" id="12. How often do you use LRT/BUS?">' + (feature.properties['12. How often do you use LRT/BUS?'] !== null ? autolinker.link(String(feature.properties['12. How often do you use LRT/BUS?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">13. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)</th>\
+                        <td class="visible-with-data" id="13. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)">' + (feature.properties['13. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)'] !== null ? autolinker.link(String(feature.properties['13. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">1st choice</th>\
+                        <td class="visible-with-data" id="1st choice">' + (feature.properties['1st choice'] !== null ? autolinker.link(String(feature.properties['1st choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">2nd choice</th>\
+                        <td class="visible-with-data" id="2nd choice">' + (feature.properties['2nd choice'] !== null ? autolinker.link(String(feature.properties['2nd choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">3rd choice</th>\
+                        <td class="visible-with-data" id="3rd choice">' + (feature.properties['3rd choice'] !== null ? autolinker.link(String(feature.properties['3rd choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">4th choice</th>\
+                        <td class="visible-with-data" id="4th choice">' + (feature.properties['4th choice'] !== null ? autolinker.link(String(feature.properties['4th choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5th choice</th>\
+                        <td class="visible-with-data" id="5th choice">' + (feature.properties['5th choice'] !== null ? autolinker.link(String(feature.properties['5th choice']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">14.Do you know about BRT? (Explain for the respondent in both answers)</th>\
+                        <td class="visible-with-data" id="14.Do you know about BRT? (Explain for the respondent in both answers)">' + (feature.properties['14.Do you know about BRT? (Explain for the respondent in both answers)'] !== null ? autolinker.link(String(feature.properties['14.Do you know about BRT? (Explain for the respondent in both answers)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">15. Will you prefer BRT other than other modes of transport(LRT / Bus)?</th>\
+                        <td class="visible-with-data" id="15. Will you prefer BRT other than other modes of transport(LRT / Bus)?">' + (feature.properties['15. Will you prefer BRT other than other modes of transport(LRT / Bus)?'] !== null ? autolinker.link(String(feature.properties['15. Will you prefer BRT other than other modes of transport(LRT / Bus)?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">16. What would be the basic reason for choosing it (BRT)?</th>\
+                        <td class="visible-with-data" id="16. What would be the basic reason for choosing it (BRT)?">' + (feature.properties['16. What would be the basic reason for choosing it (BRT)?'] !== null ? autolinker.link(String(feature.properties['16. What would be the basic reason for choosing it (BRT)?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17. How much is the cost for travel of current transport?</th>\
+                        <td class="visible-with-data" id="17. How much is the cost for travel of current transport?">' + (feature.properties['17. How much is the cost for travel of current transport?'] !== null ? autolinker.link(String(feature.properties['17. How much is the cost for travel of current transport?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?">' + (feature.properties['18. How much money do you spend on this public transport daily?'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?/>100 ETB per day</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?/>100 ETB per day">' + (feature.properties['18. How much money do you spend on this public transport daily?/>100 ETB per day'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?/>100 ETB per day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?/50 – 100 ETB per day</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?/50 – 100 ETB per day">' + (feature.properties['18. How much money do you spend on this public transport daily?/50 – 100 ETB per day'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?/50 – 100 ETB per day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?/Up to 50 ETB per day</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?/Up to 50 ETB per day">' + (feature.properties['18. How much money do you spend on this public transport daily?/Up to 50 ETB per day'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?/Up to 50 ETB per day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. How much money do you spend on this public transport daily?/Other (Please specify)</th>\
+                        <td class="visible-with-data" id="18. How much money do you spend on this public transport daily?/Other (Please specify)">' + (feature.properties['18. How much money do you spend on this public transport daily?/Other (Please specify)'] !== null ? autolinker.link(String(feature.properties['18. How much money do you spend on this public transport daily?/Other (Please specify)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Other (Please specify)_1</th>\
+                        <td class="visible-with-data" id="Other (Please specify)_1">' + (feature.properties['Other (Please specify)_1'] !== null ? autolinker.link(String(feature.properties['Other (Please specify)_1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?">' + (feature.properties['19.Rate the cost for the travel?'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Cheap</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Cheap">' + (feature.properties['19.Rate the cost for the travel?/Cheap'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Cheap']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Very affordable</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Very affordable">' + (feature.properties['19.Rate the cost for the travel?/Very affordable'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Very affordable']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Affordable</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Affordable">' + (feature.properties['19.Rate the cost for the travel?/Affordable'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Affordable']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Expensive</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Expensive">' + (feature.properties['19.Rate the cost for the travel?/Expensive'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Expensive']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Rate the cost for the travel?/Very expensive</th>\
+                        <td class="visible-with-data" id="19.Rate the cost for the travel?/Very expensive">' + (feature.properties['19.Rate the cost for the travel?/Very expensive'] !== null ? autolinker.link(String(feature.properties['19.Rate the cost for the travel?/Very expensive']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">20. What amount would you consider reasonable or acceptable for the cost of this trip?</th>\
+                        <td class="visible-with-data" id="20. What amount would you consider reasonable or acceptable for the cost of this trip?">' + (feature.properties['20. What amount would you consider reasonable or acceptable for the cost of this trip?'] !== null ? autolinker.link(String(feature.properties['20. What amount would you consider reasonable or acceptable for the cost of this trip?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">21.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)</th>\
+                        <td class="visible-with-data" id="21.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)">' + (feature.properties['21.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)'] !== null ? autolinker.link(String(feature.properties['21.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">22. What do you appreciate most about the current LRT/Bus system?</th>\
+                        <td class="visible-with-data" id="22. What do you appreciate most about the current LRT/Bus system?">' + (feature.properties['22. What do you appreciate most about the current LRT/Bus system?'] !== null ? autolinker.link(String(feature.properties['22. What do you appreciate most about the current LRT/Bus system?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">5. Where is your home location and most usable station?</th>\
+                        <td class="visible-with-data" id="5. Where is your home location and most usable station?">' + (feature.properties['5. Where is your home location and most usable station?'] !== null ? autolinker.link(String(feature.properties['5. Where is your home location and most usable station?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">6. Where is your current destination and the path you will use?</th>\
+                        <td class="visible-with-data" id="6. Where is your current destination and the path you will use?">' + (feature.properties['6. Where is your current destination and the path you will use?'] !== null ? autolinker.link(String(feature.properties['6. Where is your current destination and the path you will use?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">7. How much time did it take to get to this station/stop?</th>\
+                        <td class="visible-with-data" id="7. How much time did it take to get to this station/stop?">' + (feature.properties['7. How much time did it take to get to this station/stop?'] !== null ? autolinker.link(String(feature.properties['7. How much time did it take to get to this station/stop?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">8. How long do you wait for LRT/Bus usually?</th>\
+                        <td class="visible-with-data" id="8. How long do you wait for LRT/Bus usually?">' + (feature.properties['8. How long do you wait for LRT/Bus usually?'] !== null ? autolinker.link(String(feature.properties['8. How long do you wait for LRT/Bus usually?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">9. How much time does this journey usually take to get to your destination?</th>\
+                        <td class="visible-with-data" id="9. How much time does this journey usually take to get to your destination?">' + (feature.properties['9. How much time does this journey usually take to get to your destination?'] !== null ? autolinker.link(String(feature.properties['9. How much time does this journey usually take to get to your destination?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">10. How often do you use LRT/BUS?</th>\
+                        <td class="visible-with-data" id="10. How often do you use LRT/BUS?">' + (feature.properties['10. How often do you use LRT/BUS?'] !== null ? autolinker.link(String(feature.properties['10. How often do you use LRT/BUS?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">11. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)</th>\
+                        <td class="visible-with-data" id="11. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)">' + (feature.properties['11. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)'] !== null ? autolinker.link(String(feature.properties['11. Which of these factors make you feel uncomfortably while travelling using the public transport? * (rank each from 1-5)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">12.Do you know about BRT? (Explain for the respondent in both answers)</th>\
+                        <td class="visible-with-data" id="12.Do you know about BRT? (Explain for the respondent in both answers)">' + (feature.properties['12.Do you know about BRT? (Explain for the respondent in both answers)'] !== null ? autolinker.link(String(feature.properties['12.Do you know about BRT? (Explain for the respondent in both answers)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">14. What would be the basic reason for choosing it (BRT)?</th>\
+                        <td class="visible-with-data" id="14. What would be the basic reason for choosing it (BRT)?">' + (feature.properties['14. What would be the basic reason for choosing it (BRT)?'] !== null ? autolinker.link(String(feature.properties['14. What would be the basic reason for choosing it (BRT)?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">15. How much is the cost for travel of current transport?</th>\
+                        <td class="visible-with-data" id="15. How much is the cost for travel of current transport?">' + (feature.properties['15. How much is the cost for travel of current transport?'] !== null ? autolinker.link(String(feature.properties['15. How much is the cost for travel of current transport?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?">' + (feature.properties['17.Rate the cost for the travel?'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Cheap</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Cheap">' + (feature.properties['17.Rate the cost for the travel?/Cheap'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Cheap']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Very affordable</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Very affordable">' + (feature.properties['17.Rate the cost for the travel?/Very affordable'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Very affordable']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Affordable</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Affordable">' + (feature.properties['17.Rate the cost for the travel?/Affordable'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Affordable']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Expensive</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Expensive">' + (feature.properties['17.Rate the cost for the travel?/Expensive'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Expensive']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">17.Rate the cost for the travel?/Very expensive</th>\
+                        <td class="visible-with-data" id="17.Rate the cost for the travel?/Very expensive">' + (feature.properties['17.Rate the cost for the travel?/Very expensive'] !== null ? autolinker.link(String(feature.properties['17.Rate the cost for the travel?/Very expensive']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">18. What amount would you consider reasonable or acceptable for the cost of this trip?</th>\
+                        <td class="visible-with-data" id="18. What amount would you consider reasonable or acceptable for the cost of this trip?">' + (feature.properties['18. What amount would you consider reasonable or acceptable for the cost of this trip?'] !== null ? autolinker.link(String(feature.properties['18. What amount would you consider reasonable or acceptable for the cost of this trip?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">19.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)</th>\
+                        <td class="visible-with-data" id="19.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)">' + (feature.properties['19.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)'] !== null ? autolinker.link(String(feature.properties['19.Is there any suggestion to improve access, comfort and overall user experience to and from public transport stations/stops and while on public transport? (Open ended)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">20. What do you appreciate most about the current LRT/Bus system?</th>\
+                        <td class="visible-with-data" id="20. What do you appreciate most about the current LRT/Bus system?">' + (feature.properties['20. What do you appreciate most about the current LRT/Bus system?'] !== null ? autolinker.link(String(feature.properties['20. What do you appreciate most about the current LRT/Bus system?']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_id</th>\
+                        <td class="visible-with-data" id="_id">' + (feature.properties['_id'] !== null ? autolinker.link(String(feature.properties['_id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_uuid</th>\
+                        <td class="visible-with-data" id="_uuid">' + (feature.properties['_uuid'] !== null ? autolinker.link(String(feature.properties['_uuid']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_submission_time</th>\
+                        <td class="visible-with-data" id="_submission_time">' + (feature.properties['_submission_time'] !== null ? autolinker.link(String(feature.properties['_submission_time']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_validation_status</th>\
+                        <td class="visible-with-data" id="_validation_status">' + (feature.properties['_validation_status'] !== null ? autolinker.link(String(feature.properties['_validation_status']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_notes</th>\
+                        <td class="visible-with-data" id="_notes">' + (feature.properties['_notes'] !== null ? autolinker.link(String(feature.properties['_notes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_status</th>\
+                        <td class="visible-with-data" id="_status">' + (feature.properties['_status'] !== null ? autolinker.link(String(feature.properties['_status']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_submitted_by</th>\
+                        <td class="visible-with-data" id="_submitted_by">' + (feature.properties['_submitted_by'] !== null ? autolinker.link(String(feature.properties['_submitted_by']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">__version__</th>\
+                        <td class="visible-with-data" id="__version__">' + (feature.properties['__version__'] !== null ? autolinker.link(String(feature.properties['__version__']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_tags</th>\
+                        <td class="visible-with-data" id="_tags">' + (feature.properties['_tags'] !== null ? autolinker.link(String(feature.properties['_tags']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">_index</th>\
+                        <td class="visible-with-data" id="_index">' + (feature.properties['_index'] !== null ? autolinker.link(String(feature.properties['_index']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2_0(feature) {
+            switch(String(feature.properties['10. How long do you wait for LRT/Bus usually?'])) {
+                case '10 minutes – 20 minutes':
+                    return {
+                pane: 'pane_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2',
+                radius: 4.8,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,255,40,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '20 minutes – 30 minutes':
+                    return {
+                pane: 'pane_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2',
+                radius: 5.2,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(252,249,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '5 minutes – 10 minutes ':
+                    return {
+                pane: 'pane_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(227,26,28,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'more than 30 minutes':
+                    return {
+                pane: 'pane_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,52,224,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2');
+        map.getPane('pane_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2').style.zIndex = 402;
+        map.getPane('pane_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2').style['mix-blend-mode'] = 'normal';
+        var layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2 = new L.geoJson(json_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2',
+            layerName: 'layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2',
+            pane: 'pane_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2',
+            onEachFeature: pop_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2);
+        map.addLayer(layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var overlaysTree = [
+            {label: 'thesis_project_data_collection_all_versions_labels_2025_05_14_06<br /><table><tr><td style="text-align: center;"><img src="legend/thesis_project_data_collection_all_versions_labels_2025_05_14_06_2_10minutes20minutes0.png" /></td><td>10 minutes – 20 minutes</td></tr><tr><td style="text-align: center;"><img src="legend/thesis_project_data_collection_all_versions_labels_2025_05_14_06_2_20minutes30minutes1.png" /></td><td>20 minutes – 30 minutes</td></tr><tr><td style="text-align: center;"><img src="legend/thesis_project_data_collection_all_versions_labels_2025_05_14_06_2_5minutes10minutes2.png" /></td><td>5 minutes – 10 minutes </td></tr><tr><td style="text-align: center;"><img src="legend/thesis_project_data_collection_all_versions_labels_2025_05_14_06_2_morethan30minutes3.png" /></td><td>more than 30 minutes</td></tr></table>', layer: layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2},
+            {label: 'Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06<br /><table><tr><td style="text-align: center;"><img src="legend/Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1_30minutes0.png" /></td><td>< 30 minutes </td></tr><tr><td style="text-align: center;"><img src="legend/Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1_3060minutes1.png" /></td><td>30 – 60 minutes </td></tr><tr><td style="text-align: center;"><img src="legend/Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1_morethan60minutes2.png" /></td><td>more than 60 minutes</td></tr></table>', layer: layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1},
+            {label: "OpenStreetMap", layer: layer_OpenStreetMap_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        var i = 0;
+        layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['3. Station Name'] !== null?String('<div style="color: #e31a1c; font-size: 8pt; font-family: \'Arial Black\', sans-serif;">' + layer.feature.properties['3. Station Name']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['3. Station Name'] !== null?String('<div style="color: #e31a1c; font-size: 8pt; font-family: \'Arial Black\', sans-serif;">' + layer.feature.properties['3. Station Name']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        resetLabels([layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1,layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2]);
+        map.on("zoomend", function(){
+            resetLabels([layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1,layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1,layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_Thesis_Project_Data_Collection_all_versions_labels_2025_05_14_06_1,layer_thesis_project_data_collection_all_versions_labels_2025_05_14_06_2]);
+        });
+        </script>
+    </body>
+</html>

@@ -41,18 +41,58 @@
 									<p>The use of a mixed-methods approach allowed the study to capture both objective performance metrics and subjective commuter experiences. The <strong>quantitative component </strong> focused on operational indicators such as speed, frequency, capacity, and cost. These metrics were crucial in evaluating the efficiency of LRT and projecting the potential performance of BRT using comparative models. On the other hand, the <strong>qualitative component </strong>explored commuter satisfaction, comfort levels, and preferences through open-ended survey responses. This dual-layered methodology ensured that the research did not rely solely on numerical performance but also considered the human dimension of transport serviceability.</p>
 									<span class="image"> <img src="../images/Mixed Method.JPG" alt=""></span>
 
+									<hr class="major" />
+									<h2>Why Use a Mixed-Methods Approach</h2>
+									<ul>
+										<li><strong>Combines data and insights:</strong> Merges numbers (usage, delays) with passenger opinions for a complete understanding.</li>
+										<li><strong>Explains preferences:</strong> Reveals why people favor modes like BRT for speed and comfort.</li>
+										<li><strong>Validates findings:</strong> Cross-checks data with feedback (e.g., complaints support delay reports).</li>
+										<li><strong>Links facts with experiences:</strong> Shows how service issues affect user satisfaction and choices.</li>
+									</ul>
+
+									<hr class="major" />
+									<h2> Study Area and Scope</h2>
+									<p>This study focuses on Addis Ababa, Ethiopia, one of Africa’s fastest-growing cities, which faces challenges in meeting high public transportation demand due to limited services. The research centers on the Tor-Hailoch-Ayat corridor, part of the existing East-West Light Rail Transit (LRT) network.</p>
+									<span class="images"><img src="../images/scope.png" alt=""></span>
+									<p>This corridor is vital to Addis Ababa’s transit system and ideal for evaluating the LRT’s performance. Since 2015, the LRT has faced challenges like slow speeds, congestion, irregular service, and overloading. Due to high traffic flow, improving public transport here is essential.</p>
+									<p>The study also examines the potential for implementing BRT along this corridor to see if it can provide a better or complementary solution. The aim is to offer practical recommendations to improve transit access and reliability in the city.</p>
+
 									<hr>
 									<h2>Data Collection Techniques</h2>
 									<p>The <strong>primary data collection</strong> relied on a digital survey tool, <strong>Kobo Toolbox,</strong> strategically deployed at multiple LRT stations. This approach ensured that commuter responses reflected the actual day-to-day experiences of users within the targeted corridor. Data included travel habits, service expectations, and detailed feedback on LRT weaknesses and BRT potential. In addition to surveys, <strong>secondary data</strong> was collected from official sources such as the Addis Ababa Light Rail Transit office and the City Public Transport Administration. These included ridership figures, speed data, ticketing statistics, and financial reports.</p>
 									<p>This combination of primary and secondary data allowed for data triangulation—validating findings through multiple sources—which greatly strengthened the credibility of the results.</p>
 									<span class="image"><img src="../images/Data Sources primary and secondary.JPG" alt=""></span>
 									<p>The data collection process is structured to gather information relevant to all specific objectives, from analyzing current LRT performance to comparing it with BRT feasibility.</p>
-									<span class="image"><img src="../images/Data collection flow.JPG" alt=""></span>
+									<span class="image"><img src="../images/data colection flow.png" alt=""></span>
 
 									<hr class="major" />
 									<h2>Simulation Using SUMO</h2>
+									<p>SUMO is an open-source traffic simulation tool that models individual vehicle behavior, including private and public transport, pedestrians, and traffic signals. It helps analyze transportation systems realistically.</p>
 									<p>One of the most innovative components of this methodology was the use of <strong>Simulation of Urban Mobility (SUMO)</strong> software. By digitally modeling real-world traffic and transit scenarios, SUMO allowed the research team to visualize and analyze how a conceptual BRT system would perform on the same infrastructure as the LRT. Simulations tested different operational speeds, bus frequencies, and station loads to calculate metrics such as travel time, waiting time, and passenger throughput.</p>
 									<p>The SUMO simulations offered predictive insights that would be impossible to obtain solely through field data collection. These simulations demonstrated how BRT could reduce congestion, enhance average speed, and meet higher passenger volumes more efficiently than the current LRT system. The visual and numerical outputs from SUMO added technical rigor and actionable foresight to the research conclusions.</p>
+									<h3>Purpose</h3>
+									<ul>
+										<li>Compare current LRT and proposed BRT in Addis Ababa.</li>
+										<li>Test policies before implementation.</li>
+										<li>Predict traffic, travel time, and congestion.</li>
+									</ul>
+
+									<h3>Inputs:</h3>
+									<ul>
+										<li>User surveys (via Kobo Toolbox)</li>
+										<li>Maps, ticket data, traffic reports</li>
+										<li>OpenStreetMap data converted to SUMO network</li>
+									</ul>
+
+									<h3>Simulation Process:</h3>
+									<ol>
+										<li>Install SUMO and tools (NETEDIT, Python).</li>
+										<li>Download and convert the Addis Ababa OSM map.</li>
+										<li>Edit the network to focus on relevant roads using NETEDIT.</li>
+										<li>Define routes and schedules for LRT and BRT.</li>
+										<li>Run simulations and analyze outputs like travel time, congestion, delays.</li>
+										<li>Use results to compare current LRT with proposed BRT.</li>
+									</ol>
 
 									<hr class="major" />
 									<h2>Study Area Relevance</h2>
@@ -61,6 +101,10 @@
 									<hr class="major" />
 									<h2>Sampling and Data Analysis</h2>
 									<p>Survey sampling was conducted at various points across the corridor, ensuring representation across socio-economic and demographic groups. While the study was limited by time and resource constraints, sampling diversity was maintained to achieve a reliable picture of public sentiment. The analysis of qualitative responses involved thematic coding, while quantitative metrics were processed using statistical and comparative methods. Performance parameters such as average travel speed (LRT: 18 km/h, BRT projected: 22–28 km/h) and frequency were highlighted to inform the comparative analysis.</p>
+
+									<hr class="major" />
+									<h2>Scenario Building and Analysis</h2>
+									<p>The scenario begins by assessing the traffic conditions of Addis Ababa’s Light Rail Transit (LRT). Based on the findings, a Bus Rapid Transit (BRT) system is designed as an alternative using existing roads and LRT tracks. The BRT includes dedicated lanes, frequent service, and platform-level boarding. Different design assumptions, such as bus speed, travel time, and dwelling time, are tested to address LRT challenges and improve performance. The system is evaluated using SUMO simulation software.</p>
 
 									<hr class="major" />
 									<h2>Final Reflection</h2>
